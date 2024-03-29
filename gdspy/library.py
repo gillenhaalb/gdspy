@@ -2587,6 +2587,20 @@ class GdsLibrary(object):
             # TEXTTYPE
             elif record[0] == 0x16:
                 kwargs["texttype"] = texttypes.get(record[1][0], record[1][0])
+            # UNITS
+            elif record[0] == 0x03:
+                if units == "skip":
+                    factor = record[1][0]
+                elif units == "import":
+                    self.unit = record[1][1] / record[1][0]
+                    self.precision = record[1][1]
+                    factor = record[1][0]
+                elif units == "convert":
+                    factor = record[1][1] / self.unit
+                else:
+                    raise ValueError(
+                        "[GDSPY] units must be one of 'convert', 'import' or 'skip'."
+                    )
             # XY
             elif record[0] == 0x10:
                 if "xy" in kwargs:
@@ -2676,20 +2690,6 @@ class GdsLibrary(object):
             # ENDSTR
             elif record[0] == 0x07:
                 cell = None
-            # UNITS
-            elif record[0] == 0x03:
-                if units == "skip":
-                    factor = record[1][0]
-                elif units == "import":
-                    self.unit = record[1][1] / record[1][0]
-                    self.precision = record[1][1]
-                    factor = record[1][0]
-                elif units == "convert":
-                    factor = record[1][1] / self.unit
-                else:
-                    raise ValueError(
-                        "[GDSPY] units must be one of 'convert', 'import' or 'skip'."
-                    )
             # LIBNAME
             elif record[0] == 0x02:
                 self.name = record[1]
